@@ -24,14 +24,6 @@ class TestBooksCollector:
     # напиши свои тесты ниже
     # чтобы тесты были независимыми в каждом из них создавай отдельный экземпляр класса BooksCollector()
 
-    def test_add_new_book_add_empty_list_of_books(self):
-        collector = BooksCollector()
-        collector.add_new_book_empty = {}  # Инициализируем пустой список книг
-        collector.add_new_book('')  # Добавляем пустое имя книги
-
-        # Проверка, что список книг остается пустым. negative
-        assert collector.add_new_book_empty == {}
-
 
 #2. Проверка, что установление жанра книги работает корректно. positive
     def test_set_book_genre(self):
@@ -79,6 +71,10 @@ class TestBooksCollector:
         collector.add_new_book('Гарри Поттер')
         collector.set_book_genre('Гарри Поттер', 'Фантастика')
 
+        books_genre = collector.get_books_genre()
+        assert 'Гарри Поттер' in books_genre
+        assert books_genre['Гарри Поттер'] == 'Фантастика'
+
 
 #6. Проверка, что книга добавляется в избранные.
     def test_add_book_in_favorites(self):
@@ -109,44 +105,44 @@ class TestBooksCollector:
         assert favorites == ['Оно']
 
 #9. Параметризованный тест
-@pytest.mark.parametrize("name, genre, expected",
-        [
-            ["Гарри Поттер", "Фантастика", {"Гарри Поттер": "Фантастика"}],
-            ["Оно", "Ужасы", {"Оно": "Ужасы"}],
-            ["Убийство в Восточном экспрессе", "Детективы", {"Убийство в Восточном экспрессе": "Детективы"}],
-            ["Ревизор", "Комедии", {"Ревизор": "Комедии"}],
-        ])
-def test_get_books_genre_parametrized(name, genre, expected):
-    collector = BooksCollector()
-    collector.add_new_book(name)
-    collector.set_book_genre(name, genre)
+    @pytest.mark.parametrize("name, genre, expected",
+            [
+                ["Гарри Поттер", "Фантастика", {"Гарри Поттер": "Фантастика"}],
+                ["Оно", "Ужасы", {"Оно": "Ужасы"}],
+                ["Убийство в Восточном экспрессе", "Детективы", {"Убийство в Восточном экспрессе": "Детективы"}],
+                ["Ревизор", "Комедии", {"Ревизор": "Комедии"}],
+            ])
+    def test_get_books_genre_parametrized(self, name, genre, expected):
+        collector = BooksCollector()
+        collector.add_new_book(name)
+        collector.set_book_genre(name, genre)
 
-    assert collector.get_books_genre() == expected
+        assert collector.get_books_genre() == expected
 
-#6.1. Проверка, что метод возвращает книги, которые подходят для детей.
-@pytest.mark.parametrize('books_and_genres, books_for_children_expected', [
-    (
-        {
-            'Гарри Поттер': 'Фантастика',
-            'Оно': 'Ужасы',
-            'Убийство в Восточном экспрессе': 'Детективы',
-            'Волшебник Изумрудного города': 'Фантастика',
+    #6.1. Проверка, что метод возвращает книги, которые подходят для детей.
+    @pytest.mark.parametrize('books_and_genres, books_for_children_expected', [
+        (
+            {
+                'Гарри Поттер': 'Фантастика',
+                'Оно': 'Ужасы',
+                'Убийство в Восточном экспрессе': 'Детективы',
+                'Волшебник Изумрудного города': 'Фантастика',
 
-        },
-        ['Гарри Поттер']
-    )
-])
-def test_get_books_for_children(books_and_genres, books_for_children_expected):
-    collector = BooksCollector()
+            },
+            ['Гарри Поттер']
+        )
+    ])
+    def test_get_books_for_children(self, books_and_genres, books_for_children_expected):
+        collector = BooksCollector()
 
-    # Добавление книг и их жанров
-    for title, genre in books_and_genres.items():
-        collector.add_new_book(title)
-        collector.set_book_genre(title, genre)
+        # Добавление книг и их жанров
+        for title, genre in books_and_genres.items():
+            collector.add_new_book(title)
+            collector.set_book_genre(title, genre)
 
-    books_for_children = collector.get_books_for_children()
+        books_for_children = collector.get_books_for_children()
 
-    for expected_book in books_for_children_expected:
-        assert expected_book in books_for_children
+        for expected_book in books_for_children_expected:
+            assert expected_book in books_for_children
 
-    assert len(books_for_children) == len(books_for_children_expected)
+        assert len(books_for_children) == len(books_for_children_expected)
